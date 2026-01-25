@@ -10,4 +10,10 @@ for i in example_dict.items():
     print(f"Key: {i[0]}\tValue: {i[1]}")
 
 example_dict.pop("key1")
+
+if "key1" in example_dict:
+    print("It exists!")
+else:
+    print("It not exists!")
+
 print(example_dict["key2"])

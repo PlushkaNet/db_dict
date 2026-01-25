@@ -51,6 +51,14 @@ class DBDict:
         
         return value
     
+    def __contains__(self, key):
+        with connect(self.path) as db:
+            cursor = db.execute(f"SELECT 1 FROM {self.name} WHERE D_KEY = ?", (key,))
+            data = cursor.fetchone()
+            cursor.close()
+
+        return bool(data)
+    
     def pop(self, key):
         with connect(self.path) as db:
             db.execute(f"DELETE FROM {self.name} WHERE D_KEY = ?", (key,))
