@@ -1,4 +1,5 @@
-from db_dict import DBDict
+from db_dict.sync import DBDict
+# it is example of using sync DBDict
 
 # path of db and name of the table in DB
 example_dict = DBDict("db_example.db", "example")
