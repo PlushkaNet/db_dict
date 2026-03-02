@@ -29,12 +29,6 @@ async def main():
     # for db_dict managed to save all the values
     await sleep(0.2)
 
-    if await "value1" in db_dict:
-        print("value1 exists in the DBDict!")
-
-    if not await "value9" in db_dict:
-        print("but value9 does not exist in the DBDict")
-
     async for k, v in db_dict.items():
         print(f"k: {k}\tv: {v}")
 
