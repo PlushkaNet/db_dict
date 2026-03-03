@@ -1,8 +1,11 @@
 from db_dict.sync import DBDict
 # it is example of using sync DBDict
-
+class Data:
+    def __init__(self):
+        self.data = "data"
+        self.list = [1, 5, 9]
 # path of db and name of the table in DB
-example_dict = DBDict("db_example.db", "example")
+example_dict = DBDict("test.db", "example")
 
 example_dict["key1"] = "content here 1"
 example_dict["key2"] = "content here 2"
@@ -14,9 +17,18 @@ example_dict["key7"] = [8, "hello"]
 example_dict["key8"] = {"something":"something"}
 
 for i in example_dict.items():
-    print(f"Key: {i[0]}\tValue: {i[1]}")
+    print(f"key: {i[0]}\tvalue: {i[1]}")
 
+for i in example_dict.keys():
+    print(f"key: {i}")
+
+for i in example_dict.values():
+    print(f"value: {i}")
+
+# it pops key1 from db dict
 example_dict.pop("key1")
+
+print(len(example_dict))
 
 if "key1" in example_dict:
     print("It exists!")
@@ -24,9 +36,18 @@ else:
     print("It not exists!")
 
 print(example_dict["key2"])
-print(example_dict["key3"])
+print(example_dict.get("key3"))
 print(example_dict["key4"])
 print(example_dict["key5"])
 print(example_dict["key6"])
 print(example_dict["key7"])
 print(example_dict["key8"])
+
+try:
+    print(example_dict["key10"])
+except KeyError as e:
+    print(f"KeyError: {e}")
+
+# it can work with complex objects, because it
+# uses pickle module
+example_dict[5] = Data()

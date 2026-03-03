@@ -6,7 +6,7 @@ Supports a lot of different types, including complex
 
 Currently only supports SQLite with aiosqlite
 
-It uses pickles modules to serialize and deserialize data
+It uses pickle module to serialize and deserialize data
 """
 
 from aiosqlite import connect
@@ -63,7 +63,7 @@ class DBDict:
             cursor.close()
             db.commit()
 
-    # uses pickles to encode
+    # uses pickle to encode
     def __serialize_object(self, obj) -> bytes:
         return pickle.dumps(obj)
     
