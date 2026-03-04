@@ -4,6 +4,12 @@ from dataclasses import dataclass
 from datetime import datetime
 
 
+class Data:
+    def __init__(self):
+        self.data = "data"
+        self.list = [1, 5, 9]
+
+
 @dataclass
 class Info:
     title: str

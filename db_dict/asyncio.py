@@ -36,32 +36,28 @@ class DBDict:
     # async setup (currently unused)
     # All setup work are in this function
     async def _setup(self):
+        self.__validate_name()
         async with connect(self.path) as db:
-            async with db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='dicts_info'") as cursor:
-                data = await cursor.fetchone()
-                if not data:
-                    await cursor.execute("CREATE TABLE dicts_info(NAME TEXT PRIMARY KEY)")
-                await cursor.execute("SELECT 1 FROM dicts_info WHERE NAME = ?", (self.name,))
-                data = await cursor.fetchone()
-                if not data:
-                    await cursor.execute("INSERT INTO dicts_info VALUES (?)", (self.name,))
-                    await cursor.execute(f"CREATE TABLE {self.name} (D_KEY BLOB PRIMARY KEY, D_VALUE BLOB)")
+            await db.execute(f"CREATE TABLE IF NOT EXISTS {self.name}(D_KEY BLOB PRIMARY KEY, D_VALUE BLOB)")
             await db.commit()
 
     # currently sync setup is used, because thread need to wait until setup complete
     def __sync_setup(self):
+        self.__validate_name()
         with sqlite3.connect(self.path) as db:
-            cursor = db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='dicts_info'")
-            data = cursor.fetchone()
-            if not data:
-                cursor.execute("CREATE TABLE dicts_info(NAME TEXT PRIMARY KEY)")
-            cursor.execute("SELECT 1 FROM dicts_info WHERE NAME = ?", (self.name,))
-            data = cursor.fetchone()
-            if not data:
-                cursor.execute("INSERT INTO dicts_info VALUES (?)", (self.name,))
-                cursor.execute(f"CREATE TABLE {self.name} (D_KEY BLOB PRIMARY KEY, D_VALUE BLOB)")
-            cursor.close()
+            db.execute(f"CREATE TABLE IF NOT EXISTS {self.name}(D_KEY BLOB PRIMARY KEY, D_VALUE BLOB)")
             db.commit()
+    
+    # replaces non-ascii letters to "a"
+    def __validate_name(self):
+        ascii = '_abcdefghijklmnopqrstuvwxyz'+'abcdefghijklmnopqrstuvwxyz'.upper()
+        v = ""
+        for i in self.name:
+            if i not in ascii:
+                v += "a"
+            else:
+                v += i
+        self.name = v
 
     # uses pickle to encode
     def __serialize_object(self, obj) -> bytes:
