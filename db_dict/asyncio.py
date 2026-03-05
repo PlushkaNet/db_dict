@@ -88,6 +88,7 @@ class DBDict:
     """
     async def get(self, key, default=None):
         async with connect(self.path) as db:
+            key = self.__serialize_object(key)
             async with db.execute(f"SELECT D_VALUE FROM {self.name} WHERE D_KEY = ?", (key,)) as cursor:
                 value = await cursor.fetchone()
                 if value:
@@ -106,6 +107,7 @@ class DBDict:
 
     async def contains(self, key):
         async with connect(self.path) as db:
+            key = self.__serialize_object(key)
             async with db.execute(f"SELECT 1 FROM {self.name} WHERE D_KEY = ?", (key,)) as cursor:
                 data = await cursor.fetchone()
 
@@ -119,6 +121,7 @@ class DBDict:
 
     async def pop(self, key):
         async with connect(self.path) as db:
+            key = self.__serialize_object(key)
             await db.execute(f"DELETE FROM {self.name} WHERE D_KEY = ?", (key,))
             await db.commit()
 
