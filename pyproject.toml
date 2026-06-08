@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "db_dict"
+dynamic = ["version"]
+description = "Easy to use user-friendly sqlite db dict interface"
+readme = "README.md"
+
+license = { name = "MIT", file = "LICENSE" }
+
+authors = [ { name = "Plushka" } ]
+
+dependencies = [
+    "aiosqlite>=2.34"
+]
+
+[project.urls]
+Source = "https://github.com/PlushkaNet/db_dict"
+
+[tool.hatch.version]
+path = "db_dict/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["db_dict"]
