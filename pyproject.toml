@@ -13,7 +13,7 @@ license = { name = "MIT", file = "LICENSE" }
 authors = [ { name = "Plushka" } ]
 
 dependencies = [
-    "aiosqlite>=2.34"
+    "aiosqlite>=0.22.1"
 ]
 
 [project.urls]
