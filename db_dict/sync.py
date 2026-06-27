@@ -10,12 +10,13 @@ It uses pickle module to serialize and deserialize data
 
 from sqlite3 import connect
 import pickle
-from .exceptions import *
 
 class DBDict:
     def setup(self):
-        """Sets up DBDict\n
-        It creates necessary tables to work properly"""
+        """
+        Sets up DBDict
+        It creates necessary tables to work properly
+        """
         self.__validate_name()
         with connect(self.path) as db:
             db.execute(f"CREATE TABLE IF NOT EXISTS {self.name}(D_KEY BLOB PRIMARY KEY, D_VALUE BLOB)")
@@ -23,10 +24,10 @@ class DBDict:
 
     # replaces non-ascii letters to "a"
     def __validate_name(self):
-        ascii = '_abcdefghijklmnopqrstuvwxyz'+'abcdefghijklmnopqrstuvwxyz'.upper()
+        ascii_text = '_abcdefghijklmnopqrstuvwxyz'+'abcdefghijklmnopqrstuvwxyz'.upper()
         v = ""
         for i in self.name:
-            if i not in ascii:
+            if i not in ascii_text:
                 v += "a"
             else:
                 v += i
@@ -35,10 +36,12 @@ class DBDict:
     # name MUST be a valid input in latin without spaces, etc.
     # it can only contain chars (a, b, c) and _
     def __init__(self, path, name:str, autosetup=True):
-        """Creates DBDict\n
-        Arguments are: `path` and `name`\n
-        `path` - path in the system where database file is located\n
-        `name` - name of the table in database"""
+        """
+        Creates DBDict
+        Arguments are: `path` and `name`
+        `path` - path in the system where database file is located
+        `name` - name of the table in database
+        """
         self.name = "dict_" + name
         self.path = path
         if autosetup:
@@ -46,7 +49,7 @@ class DBDict:
 
     def __serialize(self, obj) -> bytes:
         return pickle.dumps(obj)
-        
+
     def __unserialize(self, obj:bytes):
         return pickle.loads(obj)
 
@@ -56,15 +59,17 @@ class DBDict:
             value = self.__serialize(value)
             db.execute(f"INSERT INTO {self.name} VALUES (?, ?) ON CONFLICT (D_KEY) DO UPDATE SET D_VALUE = EXCLUDED.D_VALUE", (key, value,))
             db.commit()
-    
+
     def get(self, key, default=None):
-        """Gets item from dict\n
-        Returns default if key not found\n
+        """
+        Gets item from dict
+        Returns default if key not found
         Usage:
         ```
         db = DBDict("db.db", "dict")
         value = db.get("key", default="not found")
-        ```"""
+        ```
+        """
         with connect(self.path) as db:
             key = self.__serialize(key)
             cursor = db.execute(f"SELECT D_VALUE FROM {self.name} WHERE D_KEY = ?", (key,))
@@ -74,16 +79,17 @@ class DBDict:
             else:
                 value = default
             cursor.close()
-        
+
         return value
 
     # gets item from dict by key
     # raises KeyError if key not found
     def __getitem__(self, key):
-        data = self.get(key)
-        if data != None: return data
-        else: raise KeyError(f"Key {key} does not exists in the database")
-    
+        if (data := self.get(key)) is not None:
+            return data
+        else:
+            raise KeyError(f"Key {key!r} does not exists in the database")
+
     def __contains__(self, key):
         with connect(self.path) as db:
             key = self.__serialize(key)
@@ -91,49 +97,58 @@ class DBDict:
             data = cursor.fetchone()
             cursor.close()
 
-        if data: return True
+        if data:
+            return True
         return False
-    
+
     def pop(self, key):
         """Deletes value by key in the database"""
         with connect(self.path) as db:
             key = self.__serialize(key)
             db.execute(f"DELETE FROM {self.name} WHERE D_KEY = ?", (key,))
             db.commit()
-    
+
     def __generator(self, value:str):
         with connect(self.path) as db:
             cursor = db.execute(f"SELECT {value} FROM {self.name}")
             for i in cursor:
                 yield self.__unserialize(i[0])
             cursor.close()
-    
+
     def keys(self):
-        """Return generator of dict's keys\n
+        """
+        Return generator of dict's keys
         Usage:
         ```
         db = DBDict("db.db", "dict")
         for i in db.keys():
             print(i)
-        ```"""
+        ```
+        """
         return self.__generator("D_KEY")
+
     def values(self):
-        """Return generator of dict's values\n
+        """
+        Return generator of dict's values
         Usage:
         ```
         db = DBDict("db.db", "dict")
         for i in db.values():
             print(i)
-        ```"""
+        ```
+        """
         return self.__generator("D_VALUE")
+
     def items(self):
-        """Return generator of dict's items\n
+        """
+        Return generator of dict's items
         Usage:
         ```
         db = DBDict("db.db", "dict")
         for k, v in db.values():
             print(f"key: {k}, value: {v}")
-        ```"""
+        ```
+        """
         with connect(self.path) as db:
             cursor = db.execute(f"SELECT D_KEY, D_VALUE FROM {self.name}")
             for i in cursor:
@@ -142,7 +157,7 @@ class DBDict:
                 self.__unserialize(i[1])
             )
             cursor.close()
-    
+
     def __len__(self):
         with connect(self.path) as db:
             cursor = db.execute(f"SELECT COUNT(*) FROM {self.name}")

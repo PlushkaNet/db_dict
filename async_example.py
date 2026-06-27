@@ -1,20 +1,17 @@
-from db_dict.asyncio import DBDict
 from asyncio import run, sleep
 from dataclasses import dataclass
 from datetime import datetime
-
+from db_dict.asyncio import DBDict
 
 class Data:
     def __init__(self):
         self.data = "data"
         self.list = [1, 5, 9]
 
-
 @dataclass
 class Info:
     title: str
     description: str
-
 
 @dataclass
 class Session:

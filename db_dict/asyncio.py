@@ -8,12 +8,11 @@ Currently only supports SQLite with aiosqlite
 
 It uses pickle module to serialize and deserialize data
 """
+from asyncio import get_running_loop, new_event_loop, set_event_loop
+import sqlite3
+import pickle
 
 from aiosqlite import connect
-import sqlite3
-from asyncio import get_running_loop, new_event_loop, set_event_loop
-
-import pickle
 
 class DBDict:
     def __init__(self, path, name, autosetup=True):
@@ -47,13 +46,13 @@ class DBDict:
         with sqlite3.connect(self.path) as db:
             db.execute(f"CREATE TABLE IF NOT EXISTS {self.name}(D_KEY BLOB PRIMARY KEY, D_VALUE BLOB)")
             db.commit()
-    
+
     # replaces non-ascii letters to "a"
     def __validate_name(self):
-        ascii = '_abcdefghijklmnopqrstuvwxyz'+'abcdefghijklmnopqrstuvwxyz'.upper()
+        ascii_text = '_abcdefghijklmnopqrstuvwxyz'+'abcdefghijklmnopqrstuvwxyz'.upper()
         v = ""
         for i in self.name:
-            if i not in ascii:
+            if i not in ascii_text:
                 v += "a"
             else:
                 v += i
@@ -62,16 +61,16 @@ class DBDict:
     # uses pickle to encode
     def __serialize_object(self, obj) -> bytes:
         return pickle.dumps(obj)
-    
+
     # the same as for __serialize_object
     def __deserialize_object(self, obj:bytes):
         return pickle.loads(obj)
 
-    """
-    Sets key with value
-    Use this, if you need to await your set operations
-    """
     async def set(self, key, value):
+        """
+        Sets key with value
+        Use this, if you need to await your set operations
+        """
         async with connect(self.path) as db:
             key = self.__serialize_object(key)
             value = self.__serialize_object(value)
@@ -82,11 +81,11 @@ class DBDict:
     def __setitem__(self, key, value):
         self._asyncio_loop.create_task(self.set(key, value))
 
-    """
-    Similar to dict.get() method
-    default - value will be returned if key not found
-    """
     async def get(self, key, default=None):
+        """
+        Similar to dict.get() method
+        default - value will be returned if key not found
+        """
         async with connect(self.path) as db:
             key = self.__serialize_object(key)
             async with db.execute(f"SELECT D_VALUE FROM {self.name} WHERE D_KEY = ?", (key,)) as cursor:
@@ -95,13 +94,14 @@ class DBDict:
                     value = self.__deserialize_object(value[0])
                 else:
                     value = default
-        
+
         return value
 
-    # returns a coroutine, so its can be awaited
-    # like:
-    # value = await dbdict["value"]
     def __getitem__(self, key):
+        # returns a coroutine, so its can be awaited
+        # like:
+        # value = await dbdict["value"]
+
         # self._asyncio_loop.create_task(self.get(key))
         return self.get(key)
 
@@ -131,14 +131,18 @@ class DBDict:
             async with db.execute(f"SELECT {values} FROM {self.name}") as cursor:
                 async for value in cursor:
                     yield value
-    
+
     # method that deserializes values from __fetch_values
     async def __create_generator(self, value:str):
         async for i in self.__fetch_values(value):
             yield self.__deserialize_object(i[0])
 
-    async def keys(self): return self.__create_generator("D_KEY")
-    async def values(self): return self.__create_generator("D_VALUE")
+    async def keys(self):
+        return self.__create_generator("D_KEY")
+
+    async def values(self):
+        return self.__create_generator("D_VALUE")
+
     async def items(self):
         async for i in self.__fetch_values("D_KEY, D_VALUE"):
             yield (
@@ -149,5 +153,6 @@ class DBDict:
     # here will be context manager in the future
     async def __aenter__(self):
         pass
-    async def __aexit__(self):
+
+    async def __aexit__(self, exc_type, exc, exc_tb):
         pass
