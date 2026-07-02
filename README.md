@@ -1,12 +1,12 @@
-# Python dict's like class for have a dict experience with data bases!
+# 📒 Python dict as a database
 
-## Installation
-You can install db_dict using pip:
+## 📦 Installation
+You can install db_dict via pip:
 ```
 pip install git+https://github.com/PlushkaNet/db_dict.git
 ```
 
-<b>Sync usage example:</b>
+**Sync usage example:**
 ```
 from db_dict.sync import DBDict
 from dataclasses import dataclass
@@ -24,6 +24,6 @@ d[1] = 1
 print(d["data"])
 ```
 
-<h3>! Asyncio module currently not full implemented</h3>
+### ❗ Asyncio module currently not fully implemented
 
-<b> To get complete examples, check out <a href="example.py">sync</a> and <a href="async_example.py">async</a> example files
+**To get complete examples, check out <a href="example.py">sync</a> and <a href="async_example.py">async</a> example files**
