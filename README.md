@@ -1,5 +1,9 @@
 # 📒 Python dict as a database
 
+# ❗ Do NOT use this package in your code
+> [!IMPORTANT]
+> This package has lots of vulnerabilities, bugs and was written in educational purposes
+
 ## 📦 Installation
 You can install db_dict via pip:
 ```
