@@ -1,7 +1,7 @@
-# 📒 Python dict as a database
+# 📒 Python dict as a SQLite3 database
 
 # ❗ Do NOT use this package in your code
-> [!IMPORTANT]
+> [!CAUTION]
 > This package has lots of vulnerabilities, bugs and was written in educational purposes
 
 ## 📦 Installation
